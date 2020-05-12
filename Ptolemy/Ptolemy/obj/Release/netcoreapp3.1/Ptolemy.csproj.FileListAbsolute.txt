@@ -1,0 +1,12 @@
+C:\Users\alexj\source\repos\Alex-Tremayne\Ptolemy\Ptolemy\Ptolemy\bin\Release\netcoreapp3.1\Ptolemy.exe
+C:\Users\alexj\source\repos\Alex-Tremayne\Ptolemy\Ptolemy\Ptolemy\bin\Release\netcoreapp3.1\Ptolemy.deps.json
+C:\Users\alexj\source\repos\Alex-Tremayne\Ptolemy\Ptolemy\Ptolemy\bin\Release\netcoreapp3.1\Ptolemy.runtimeconfig.json
+C:\Users\alexj\source\repos\Alex-Tremayne\Ptolemy\Ptolemy\Ptolemy\bin\Release\netcoreapp3.1\Ptolemy.runtimeconfig.dev.json
+C:\Users\alexj\source\repos\Alex-Tremayne\Ptolemy\Ptolemy\Ptolemy\bin\Release\netcoreapp3.1\Ptolemy.dll
+C:\Users\alexj\source\repos\Alex-Tremayne\Ptolemy\Ptolemy\Ptolemy\bin\Release\netcoreapp3.1\Ptolemy.pdb
+C:\Users\alexj\source\repos\Alex-Tremayne\Ptolemy\Ptolemy\Ptolemy\obj\Release\netcoreapp3.1\Ptolemy.csproj.CoreCompileInputs.cache
+C:\Users\alexj\source\repos\Alex-Tremayne\Ptolemy\Ptolemy\Ptolemy\obj\Release\netcoreapp3.1\Ptolemy.AssemblyInfoInputs.cache
+C:\Users\alexj\source\repos\Alex-Tremayne\Ptolemy\Ptolemy\Ptolemy\obj\Release\netcoreapp3.1\Ptolemy.AssemblyInfo.cs
+C:\Users\alexj\source\repos\Alex-Tremayne\Ptolemy\Ptolemy\Ptolemy\obj\Release\netcoreapp3.1\Ptolemy.dll
+C:\Users\alexj\source\repos\Alex-Tremayne\Ptolemy\Ptolemy\Ptolemy\obj\Release\netcoreapp3.1\Ptolemy.pdb
+C:\Users\alexj\source\repos\Alex-Tremayne\Ptolemy\Ptolemy\Ptolemy\obj\Release\netcoreapp3.1\Ptolemy.genruntimeconfig.cache

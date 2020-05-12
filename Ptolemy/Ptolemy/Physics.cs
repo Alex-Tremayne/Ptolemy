@@ -22,67 +22,76 @@ namespace Ptolemy
             InitialiseRK4();
         }
 
-        public void UpdateStep()
+        public void UpdateStep(int iters)
         {
             double[] displacement = new double[3];
             double[] force = new double[3];
             double[] forcePrediction = new double[3];
             double[] velocityPrediction = new double[3];
-            double[] positionPrediction = new double[3];
             double[] newVelocity = new double[3];
-
             double norm;
 
-            for(int i = 0; i < Bodies.Length; i++)
+
+            for (int iter = 0; iter < iters; iter++)
             {
-                for (int j = 0; j < Bodies.Length; j++)
+                for (int i = 0; i < Bodies.Length; i++)
                 {
-                    if( i == j){ continue; }
-                    displacement = Bodies[i].Position.Subtract(Bodies[j].Position);
-                    norm = displacement.Norm();
-                    force = force.Subtract(displacement.ScalarProduct(stepSize * gravitationalConstant * Bodies[j].Mass
-                                        / (norm * norm * norm)));
-                }
-                
-                velocityPrediction = Bodies[i].Velocity.Add((force.ScalarProduct(55.0))
-                                              .Subtract(Bodies[i].ForceEvaluations[0].ScalarProduct(59.0))
-                                              .Add(Bodies[i].ForceEvaluations[1].ScalarProduct(37.0))
-                                              .Subtract(Bodies[i].ForceEvaluations[2].ScalarProduct(9.0))
-                                              .ScalarProduct(stepSize / 24.0));
-                //Console.WriteLine(force[0].ToString());
+                    Array.Clear(force, 0, force.Length);
+                    for (int j = 0; j < Bodies.Length; j++)
+                    {
+                        if (i == j) { continue; }
+                        displacement = Bodies[i].Position.Subtract(Bodies[j].Position);
+                        norm = displacement.Norm();
+                        force = force.Subtract(displacement.ScalarProduct(stepSize * gravitationalConstant * Bodies[j].Mass
+                                            / (norm * norm * norm)));
+                    }
 
-                positionPrediction = Bodies[i].Position.Add(velocityPrediction.ScalarProduct(251.0)
-                                               .Add(Bodies[i].Velocity.ScalarProduct(646.0))
-                                               .Subtract(Bodies[i].VelocityEvaluations[0].ScalarProduct(264.0))
-                                               .Add(Bodies[i].VelocityEvaluations[1].ScalarProduct(106.0))
-                                               .Subtract(Bodies[i].VelocityEvaluations[2].ScalarProduct(19.0))
-                                               .ScalarProduct(stepSize / 720.0));
-                //Need to check the eval arrays most likely
-                for (int j = 0; j < Bodies.Length; j++)
-                {
-                    if (i == j) { continue; }
-                    displacement = positionPrediction.Subtract(Bodies[j].Position);
-                    norm = displacement.Norm();
-                    forcePrediction = forcePrediction.Subtract(displacement.ScalarProduct(stepSize * gravitationalConstant * Bodies[j].Mass
-                                        / (norm * norm * norm)));
+                    velocityPrediction = Bodies[i].Velocity.Add((force.ScalarProduct(55.0))
+                                                  .Subtract(Bodies[i].ForceEvaluations[0].ScalarProduct(59.0))
+                                                  .Add(Bodies[i].ForceEvaluations[1].ScalarProduct(37.0))
+                                                  .Subtract(Bodies[i].ForceEvaluations[2].ScalarProduct(9.0))
+                                                  .ScalarProduct(stepSize / 24.0));
+
+                    Bodies[i].PositionPrediction = Bodies[i].Position.Add(velocityPrediction.ScalarProduct(251.0)
+                                                   .Add(Bodies[i].Velocity.ScalarProduct(646.0))
+                                                   .Subtract(Bodies[i].VelocityEvaluations[0].ScalarProduct(264.0))
+                                                   .Add(Bodies[i].VelocityEvaluations[1].ScalarProduct(106.0))
+                                                   .Subtract(Bodies[i].VelocityEvaluations[2].ScalarProduct(19.0))
+                                                   .ScalarProduct(stepSize / 720.0));
+
+                    Bodies[i].pushForce(force);
                 }
 
-                newVelocity = Bodies[i].Velocity.Add(forcePrediction.ScalarProduct(251.0)
-                                               .Add(force.ScalarProduct(646.0))
-                                               .Subtract(Bodies[i].ForceEvaluations[0].ScalarProduct(264.0))
-                                               .Add(Bodies[i].ForceEvaluations[1].ScalarProduct(106.0))
-                                               .Subtract(Bodies[i].ForceEvaluations[2].ScalarProduct(19.0))
-                                               .ScalarProduct(stepSize / 720.0));
+                for (int i = 0; i < Bodies.Length; i++)
+                {
+                    Array.Clear(forcePrediction, 0, forcePrediction.Length);
+                    for (int j = 0; j < Bodies.Length; j++)
+                    {
+                        if (i == j) { continue; }
+                        displacement = Bodies[i].PositionPrediction.Subtract(Bodies[j].PositionPrediction);
+                        norm = displacement.Norm();
+                        forcePrediction = forcePrediction.Subtract(displacement.ScalarProduct(stepSize * gravitationalConstant * Bodies[j].Mass
+                                            / (norm * norm * norm)));
+                    }
 
-                Bodies[i].Position = Bodies[i].Position.Add(newVelocity.ScalarProduct(251.0)
-                                               .Add(Bodies[i].Velocity.ScalarProduct(646.0))
-                                               .Subtract(Bodies[i].VelocityEvaluations[0].ScalarProduct(264.0))
-                                               .Add(Bodies[i].VelocityEvaluations[1].ScalarProduct(106.0))
-                                               .Subtract(Bodies[i].VelocityEvaluations[2].ScalarProduct(19.0))
-                                               .ScalarProduct(stepSize / 720.0));
-                Bodies[i].pushVel();
-                Bodies[i].Velocity = newVelocity;
-                Bodies[i].pushForce(force);
+                    newVelocity = Bodies[i].Velocity.Add(forcePrediction.ScalarProduct(251.0)
+                                                   .Add(Bodies[i].ForceEvaluations[0].ScalarProduct(646.0))
+                                                   .Subtract(Bodies[i].ForceEvaluations[1].ScalarProduct(264.0))
+                                                   .Add(Bodies[i].ForceEvaluations[2].ScalarProduct(106.0))
+                                                   .Subtract(Bodies[i].ForceEvaluations[3].ScalarProduct(19.0))
+                                                   .ScalarProduct(stepSize / 720.0));
+
+                    Bodies[i].Position = Bodies[i].Position.Add(newVelocity.ScalarProduct(251.0)
+                                                   .Add(Bodies[i].Velocity.ScalarProduct(646.0))
+                                                   .Subtract(Bodies[i].VelocityEvaluations[0].ScalarProduct(264.0))
+                                                   .Add(Bodies[i].VelocityEvaluations[1].ScalarProduct(106.0))
+                                                   .Subtract(Bodies[i].VelocityEvaluations[2].ScalarProduct(19.0))
+                                                   .ScalarProduct(stepSize / 720.0));
+                    Bodies[i].pushVel();
+                    Bodies[i].Velocity = newVelocity;
+                    Bodies[i].pushForce(force);
+
+                }
             }
         }
         void InitialiseRK4()

@@ -15,6 +15,7 @@ namespace Ptolemy
 
         public double[][] ForceEvaluations { get; set; }//Array of net force at previous time steps
         public double[][] VelocityEvaluations { get; set; }//Array of velocities at previous time steps
+        public double[] PositionPrediction { get; set; }
 
         public void pushVel()
         {
@@ -25,7 +26,7 @@ namespace Ptolemy
         public void pushForce(double[] force)
         {
             //Move all elements in the array to the right and insert the new value
-            Array.Copy(ForceEvaluations, 0, ForceEvaluations, 1, 2);
+            Array.Copy(ForceEvaluations, 0, ForceEvaluations, 1, 3);
             ForceEvaluations[0] = force;
         }
 
@@ -36,7 +37,7 @@ namespace Ptolemy
             this.Position = position;
             this.Velocity = velocity;
 
-            ForceEvaluations = new double[3][];
+            ForceEvaluations = new double[4][];
             VelocityEvaluations = new double[3][];
 
             for (int i = 0; i < VelocityEvaluations.Length; i++)
