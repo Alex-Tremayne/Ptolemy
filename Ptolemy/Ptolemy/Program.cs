@@ -11,7 +11,7 @@ namespace Ptolemy
             double stepSize = 0.001; //Will add code to check the total energy as a measure of accuracy
             double gravConst = 1.0;
 
-            int bodyNum = 10;
+            int bodyNum = 1000;
             double lims = 1000;
 
             Body[] bodies = new Body[bodyNum];

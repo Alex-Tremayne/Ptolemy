@@ -69,5 +69,29 @@ namespace Ptolemy
             }
             return Math.Sqrt(Math.Abs(result));
         }
+
+        public static double[] Push(this double[] array, double element)
+        {
+            double[] result = new double[array.Length];
+
+            //Move all elements in the array to the right and insert the new value
+            Array.Copy(array, 0, result, 1, (array.Length - 1));
+            result[0] = element;
+
+
+            return result;
+        }
+
+        public static double[][] Push(this double[][] array, double[] element)
+        {
+            double[][] result = new double[array.Length][];
+
+            //Move all elements in the array to the right and insert the new value
+            Array.Copy(array, 0, result, 1, (array.Length - 1));
+            result[0] = element;
+
+
+            return result;
+        }
     }
 }
