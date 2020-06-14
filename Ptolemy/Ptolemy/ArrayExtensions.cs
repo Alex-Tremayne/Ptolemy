@@ -63,11 +63,45 @@ namespace Ptolemy
         public static double Norm(this double[] array)
         {
             double result = 0.0;
-            foreach(double element in array)
+            foreach (double element in array)
             {
                 result += element * element;
             }
-            return Math.Sqrt(Math.Abs(result));
+            return Math.Sqrt(result);
+        }
+        //Overload with optional shortening length
+        public static double Norm(this double[] array, double shorteningLength)
+        {
+            double result = 0.0;
+            foreach (double element in array)
+            {
+                result += element * element;
+            }
+            return Math.Sqrt(result + shorteningLength * shorteningLength);
+        }
+
+        public static double[] Push(this double[] array, double element)
+        {
+            double[] result = new double[array.Length];
+
+            //Move all elements in the array to the right and insert the new value
+            Array.Copy(array, 0, result, 1, (array.Length - 1));
+            result[0] = element;
+
+
+            return result;
+        }
+
+        public static double[][] Push(this double[][] array, double[] element)
+        {
+            double[][] result = new double[array.Length][];
+
+            //Move all elements in the array to the right and insert the new value
+            Array.Copy(array, 0, result, 1, (array.Length - 1));
+            result[0] = element;
+
+
+            return result;
         }
     }
 }

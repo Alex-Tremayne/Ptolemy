@@ -15,8 +15,8 @@ namespace Ptolemy
 
         public double[][] ForceEvaluations { get; set; }//Array of net force at previous time steps
         public double[][] VelocityEvaluations { get; set; }//Array of velocities at previous time steps
-        public double[] PositionPrediction { get; set; }
 
+        //These methods are unecessary but the RK4 initialisation code still uses them
         public void pushVel()
         {
             //Move all elements in the array to the right and insert the new value
