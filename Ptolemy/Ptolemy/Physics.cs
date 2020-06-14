@@ -11,13 +11,15 @@ namespace Ptolemy
         //We can perform coordinate scaling by modification of the gravitational constant
         private double gravitationalConstant;
         private double stepSize;
+        private double shorteningLength;
         public Body[] Bodies { get; set; }
 
-        public Physics(double stepSize, Body[] bodies, double gravitationalConstant)
+        public Physics(double stepSize, Body[] bodies, double gravitationalConstant, double shorteningLength)
         {
             this.stepSize = stepSize;
             this.Bodies = bodies;
             this.gravitationalConstant = gravitationalConstant;
+            this.shorteningLength = shorteningLength;
 
             InitialiseRK4();
         }
@@ -64,7 +66,7 @@ namespace Ptolemy
                     {
                         if (i == j) { continue; }
                         displacement = positions[i].Subtract(positions[j]);
-                        norm = displacement.Norm();
+                        norm = displacement.Norm(shorteningLength);
                         force = force.Subtract(displacement.ScalarProduct(stepSize * gravitationalConstant * masses[j]
                                             / (norm * norm * norm)));
                     }
@@ -96,7 +98,7 @@ namespace Ptolemy
                     {
                         if (i == j) { continue; }
                         displacement = positions[i].Subtract(posPredictions[j]);
-                        norm = displacement.Norm();
+                        norm = displacement.Norm(shorteningLength);
                         forcePrediction = forcePrediction.Subtract(displacement.ScalarProduct(stepSize * gravitationalConstant * masses[j]
                                             / (norm * norm * norm)));
                     }
@@ -161,7 +163,7 @@ namespace Ptolemy
                     {
                         if(j == j2) { continue; }
                         displacement = Bodies[j].Position.Subtract(Bodies[j2].Position);
-                        norm = displacement.Norm();
+                        norm = displacement.Norm(shorteningLength);
 
                         l[j, 1] = l[j, 1].Subtract(displacement
                                                     .ScalarProduct(stepSize * gravitationalConstant * Bodies[j2].Mass 
@@ -184,7 +186,7 @@ namespace Ptolemy
                             if (j == j2) { continue; }
                             displacement = Bodies[j].Position.Add(k[j, i2-1].ScalarProduct(0.5))
                                 .Subtract(Bodies[j2].Position.Add(k[j2, i2-1].ScalarProduct(0.5)));
-                            norm = displacement.Norm();
+                            norm = displacement.Norm(shorteningLength);
 
                             l[j, i2] = l[j, i2].Subtract(displacement
                                                         .ScalarProduct(stepSize * gravitationalConstant * Bodies[j2].Mass
@@ -202,7 +204,7 @@ namespace Ptolemy
                         if (j == j2) { continue; }
                         displacement = Bodies[j].Position.Add(k[j, 2])
                             .Subtract(Bodies[j2].Position.Add(k[j2, 2]));
-                        norm = displacement.Norm();
+                        norm = displacement.Norm(shorteningLength);
 
                         l[j, 3] = l[j, 3].Subtract(displacement
                                                     .ScalarProduct(stepSize * gravitationalConstant * Bodies[j2].Mass

@@ -13,11 +13,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\alexj\\source\\repos\\Ptolemy\\Ptolemy\\Ptolemy\\Ptolemy.csproj",
+      "projectUniqueName": "C:\\Users\\alexj\\source\\repos\\Alex-Tremayne\\Ptolemy\\Ptolemy\\Ptolemy\\Ptolemy.csproj",
       "projectName": "Ptolemy",
-      "projectPath": "C:\\Users\\alexj\\source\\repos\\Ptolemy\\Ptolemy\\Ptolemy\\Ptolemy.csproj",
+      "projectPath": "C:\\Users\\alexj\\source\\repos\\Alex-Tremayne\\Ptolemy\\Ptolemy\\Ptolemy\\Ptolemy.csproj",
       "packagesPath": "C:\\Users\\alexj\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\alexj\\source\\repos\\Ptolemy\\Ptolemy\\Ptolemy\\obj\\",
+      "outputPath": "C:\\Users\\alexj\\source\\repos\\Alex-Tremayne\\Ptolemy\\Ptolemy\\Ptolemy\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "C:\\Users\\alexj\\AppData\\Roaming\\NuGet\\NuGet.Config",
@@ -58,7 +58,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\3.1.202\\RuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\3.1.201\\RuntimeIdentifierGraph.json"
       }
     }
   }

@@ -28,7 +28,7 @@ namespace Ptolemy
                 bodies[i] = new Body(1.0, pos, vel);
             }
             
-            Physics simulation = new Physics(stepSize, bodies, gravConst);
+            Physics simulation = new Physics(stepSize, bodies, gravConst, 10.0);
 
             //double energy = 0.0;
             //double[] displacement = new double[3];
