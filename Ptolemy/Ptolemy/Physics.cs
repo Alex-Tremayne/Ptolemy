@@ -12,7 +12,20 @@ namespace Ptolemy
         private double gravitationalConstant;
         private double stepSize;
         private double shorteningLength;
-        public Body[] Bodies { get; set; }
+        
+        private Body[] Bodies{ get; set; }
+
+        int bodyNum;
+
+        double[][] positions;
+        double[][] velocities;
+        double[] masses;
+
+        double[][][] ForceEvals;
+        double[][][] VelEvals;
+        double[][] posPredictions;
+
+            
 
         public Physics(double stepSize, Body[] bodies, double gravitationalConstant, double shorteningLength)
         {
@@ -20,35 +33,20 @@ namespace Ptolemy
             this.Bodies = bodies;
             this.gravitationalConstant = gravitationalConstant;
             this.shorteningLength = shorteningLength;
-            Console.WriteLine();
 
-            Console.WriteLine(Bodies[0].Position[0].ToString());
-            Console.WriteLine(Bodies[1].Position[0].ToString());
+            bodyNum = Bodies.Length;
+
+            positions = new double[bodyNum][];
+            velocities = new double[bodyNum][];
+            masses = new double[bodyNum];
+
+            ForceEvals = new double[bodyNum][][];
+            VelEvals = new double[bodyNum][][];
+            posPredictions = new double[bodyNum][];
 
             InitialiseRK4();
-        }
 
-        public void UpdateStep(int iters)
-        {
-            int bodyNum = Bodies.Length;
-
-            double[] displacement = new double[3];
-            double[] force = new double[3];
-            double[] forcePrediction = new double[3];
-            double[] velocityPrediction = new double[3];
-            double[] newVelocity = new double[3];
-            double norm;
-
-            double[][] positions = new double[bodyNum][];
-            double[][] velocities = new double[bodyNum][];
-            double[] masses  = new double[bodyNum];
-
-            double[][][] ForceEvals = new double[bodyNum][][];
-            double[][][] VelEvals = new double[bodyNum][][];
-            double[][] posPredictions = new double[bodyNum][];
-
-
-            //Load the bodies and populate the arrays
+            //Preload the bodies and populate the arrays
             for (int i = 0; i < bodyNum; i++)
             {
                 positions[i] = Bodies[i].Position;
@@ -58,7 +56,33 @@ namespace Ptolemy
                 ForceEvals[i] = Bodies[i].ForceEvaluations;
                 VelEvals[i] = Bodies[i].VelocityEvaluations;
             }
+        }
 
+        public Body[] getBodies()
+        {
+            //Push data back into Body objects
+            for (int i = 0; i < bodyNum; i++)
+            {
+                Bodies[i].Position = positions[i];
+                Bodies[i].Velocity = velocities[i];
+
+                Bodies[i].ForceEvaluations = ForceEvals[i];
+                Bodies[i].VelocityEvaluations = VelEvals[i];
+            }
+
+            return Bodies;
+        }
+
+        public void UpdateStep(int iters)
+        {
+           
+
+            double[] displacement = new double[3];
+            double[] force = new double[3];
+            double[] forcePrediction = new double[3];
+            double[] velocityPrediction = new double[3];
+            double[] newVelocity = new double[3];
+            double norm;
 
             for (int iter = 0; iter < iters; iter++)
             {
@@ -113,27 +137,19 @@ namespace Ptolemy
                                                    .Add(ForceEvals[i][2].ScalarProduct(106.0))
                                                    .Subtract(ForceEvals[i][3].ScalarProduct(19.0))
                                                    .ScalarProduct(stepSize / 720.0));
-
+                    
                     positions[i] = positions[i].Add(newVelocity.ScalarProduct(251.0)
                                                    .Add(velocities[i].ScalarProduct(646.0))
                                                    .Subtract(VelEvals[i][0].ScalarProduct(264.0))
                                                    .Add(VelEvals[i][1].ScalarProduct(106.0))
                                                    .Subtract(VelEvals[i][2].ScalarProduct(19.0))
                                                    .ScalarProduct(stepSize / 720.0));
+
+                    
                     VelEvals[i].Push(velocities[i]);
                     velocities[i] = newVelocity;
 
                 }
-            }
-
-            //Push data back into Body objects
-            for (int i = 0; i < bodyNum; i++)
-            {
-                Bodies[i].Position = positions[i];
-                Bodies[i].Velocity = velocities[i];
-
-                Bodies[i].ForceEvaluations = ForceEvals[i];
-                Bodies[i].VelocityEvaluations = VelEvals[i];
             }
         }
         void InitialiseRK4()
@@ -241,25 +257,23 @@ namespace Ptolemy
             double energy = 0.0;
             double[] displacement = new double[3];
             double norm = 0.0;
-            for (int i = 0; i < Bodies.Length; i++)
+            for (int i = 0; i < bodyNum; i++)
             {
                 //Add kinetic energy
-                energy += Bodies[i].Mass * Bodies[i].Velocity.Norm()
-                    * Bodies[i].Velocity.Norm() * 0.5;
+                energy += masses[i] * velocities[i].Norm()
+                    * velocities[i].Norm() * 0.5;
                 //Add potential energy
-                for (int j = 0; j < Bodies.Length; j++)
+                for (int j = 0; j < bodyNum; j++)
                 {
                     if (i == j) { continue; }
 
-                    displacement = Bodies[i].Position.Subtract(Bodies[j].Position);
+                    displacement = positions[i].Subtract(positions[j]);
                     
 
                     norm = displacement.Norm();
-                    energy += (stepSize * gravitationalConstant * Bodies[i].Mass * Bodies[j].Mass
+                    energy += (stepSize * gravitationalConstant * masses[i] * masses[j]
                                         / (norm));
                 }
-
-                //Console.WriteLine(energy.ToString());
             }
 
             return energy;
