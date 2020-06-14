@@ -20,6 +20,10 @@ namespace Ptolemy
             this.Bodies = bodies;
             this.gravitationalConstant = gravitationalConstant;
             this.shorteningLength = shorteningLength;
+            Console.WriteLine();
+
+            Console.WriteLine(Bodies[0].Position[0].ToString());
+            Console.WriteLine(Bodies[1].Position[0].ToString());
 
             InitialiseRK4();
         }
@@ -226,6 +230,40 @@ namespace Ptolemy
                                                            .Add(l[j, 3]).ScalarProduct(1.0 / 6.0));
                 }
             }
+        }
+
+        public double GetEnergy()
+            /*
+                Returns kinetic + potential energy from the simulation's current state
+             */
+        {
+
+            double energy = 0.0;
+            double[] displacement = new double[3];
+            double norm = 0.0;
+            for (int i = 0; i < Bodies.Length; i++)
+            {
+                //Add kinetic energy
+                energy += Bodies[i].Mass * Bodies[i].Velocity.Norm()
+                    * Bodies[i].Velocity.Norm() * 0.5;
+                //Add potential energy
+                for (int j = 0; j < Bodies.Length; j++)
+                {
+                    if (i == j) { continue; }
+
+                    displacement = Bodies[i].Position.Subtract(Bodies[j].Position);
+                    
+
+                    norm = displacement.Norm();
+                    energy += (stepSize * gravitationalConstant * Bodies[i].Mass * Bodies[j].Mass
+                                        / (norm));
+                }
+
+                //Console.WriteLine(energy.ToString());
+            }
+
+            return energy;
+
         }
     }
 }
