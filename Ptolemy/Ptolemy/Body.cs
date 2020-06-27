@@ -16,10 +16,19 @@ namespace Ptolemy
         public double[][] ForceEvaluations { get; set; }//Array of net force at previous time steps
         public double[][] VelocityEvaluations { get; set; }//Array of velocities at previous time steps
 
-
+        public double[] PositionPrediction { get; set; }
 
         //Morton index for the indexed tree structure
         public uint MortonIndex { get; set; }
+
+        public void pushVel()
+        {
+            VelocityEvaluations.Push(Velocity);
+        }
+        public void pushForce(double[] force)
+        {
+            ForceEvaluations.Push(force);
+        }
 
 
         public Body(double mass, double[] position, double[] velocity)
