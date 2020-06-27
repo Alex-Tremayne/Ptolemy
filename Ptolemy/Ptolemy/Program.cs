@@ -1,4 +1,5 @@
 ﻿using System;
+using System.CodeDom.Compiler;
 using System.Diagnostics;
 
 namespace Ptolemy
@@ -8,10 +9,10 @@ namespace Ptolemy
         static void Main(string[] args)
         {
             
-            double stepSize = 0.001; //Will add code to check the total energy as a measure of accuracy
+            double stepSize = 0.001;
             double gravConst = 1.0;
 
-            int bodyNum = 10;
+            int bodyNum =400;
             double lims = 1000;
 
             Body[] bodies = new Body[bodyNum];

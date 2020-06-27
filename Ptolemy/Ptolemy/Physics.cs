@@ -2,12 +2,12 @@
 using System.Collections.Generic;
 using System.Numerics;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace Ptolemy
 {
     class Physics
     {
-        //Need to add a shortening length at some point to prevent singularities
         //We can perform coordinate scaling by modification of the gravitational constant
         private double gravitationalConstant;
         private double stepSize;
@@ -25,15 +25,25 @@ namespace Ptolemy
         double[][][] VelEvals;
         double[][] posPredictions;
 
+
+        //FMM variables
+
+        int MaxBodiesPerBox;
+
             
 
-        public Physics(double stepSize, Body[] bodies, double gravitationalConstant, double shorteningLength)
+        public Physics(double stepSize, Body[] bodies, double gravitationalConstant, double shorteningLength, int MaxBodiesPerBox = 10)
         {
             this.stepSize = stepSize;
             this.Bodies = bodies;
             this.gravitationalConstant = gravitationalConstant;
             this.shorteningLength = shorteningLength;
 
+            //FMM vars
+            this.MaxBodiesPerBox = MaxBodiesPerBox;
+
+
+            //Initialise simulation vars
             bodyNum = Bodies.Length;
 
             positions = new double[bodyNum][];
@@ -43,8 +53,6 @@ namespace Ptolemy
             ForceEvals = new double[bodyNum][][];
             VelEvals = new double[bodyNum][][];
             posPredictions = new double[bodyNum][];
-
-            InitialiseRK4();
 
             //Preload the bodies and populate the arrays
             for (int i = 0; i < bodyNum; i++)
@@ -56,6 +64,10 @@ namespace Ptolemy
                 ForceEvals[i] = Bodies[i].ForceEvaluations;
                 VelEvals[i] = Bodies[i].VelocityEvaluations;
             }
+
+
+            //Generate initial points using RK4
+            InitialiseRK4();
         }
 
         public Body[] getBodies()
@@ -157,8 +169,8 @@ namespace Ptolemy
          Creates the initial points using RK4
          */
         {
-            double[,][] k = new double[Bodies.Length, 4][];
-            double[,][] l = new double[Bodies.Length, 4][];
+            double[,][] k = new double[bodyNum, 4][];
+            double[,][] l = new double[bodyNum, 4][];
 
             double[] displacement = new double[3];
             double norm = 0.0;
@@ -175,72 +187,72 @@ namespace Ptolemy
             for (int i = 0; i < 3; i++)
             {
                 //Find k1/l1
-                for (int j = 0; j < Bodies.Length; j++)
+                for (int j = 0; j < bodyNum; j++)
                 {
-                    k[j, 1] = Bodies[j].Velocity.ScalarProduct(stepSize);
+                    k[j, 1] = velocities[j].ScalarProduct(stepSize);
 
-                    for (int j2 = 0; j2 < Bodies.Length; j2++)
+                    for (int j2 = 0; j2 < bodyNum; j2++)
                     {
                         if(j == j2) { continue; }
-                        displacement = Bodies[j].Position.Subtract(Bodies[j2].Position);
+                        displacement = positions[j].Subtract(positions[j2]);
                         norm = displacement.Norm(shorteningLength);
 
                         l[j, 1] = l[j, 1].Subtract(displacement
-                                                    .ScalarProduct(stepSize * gravitationalConstant * Bodies[j2].Mass 
+                                                    .ScalarProduct(stepSize * gravitationalConstant * masses[j2]
                                                     / (norm * norm * norm)));
                     }
                     //Store g_n
-                    Bodies[j].pushForce(l[j, 1]);
-                    Bodies[j].pushVel();
+                    ForceEvals[j].Push(l[j, 1]);
+                    VelEvals[j].Push(velocities[j]);
                 }
 
                 //Find k2/l2 and k3/l3
                 for (int i2 = 1; i2 <= 2; i2++)
                 {
-                    for (int j = 0; j < Bodies.Length; j++)
+                    for (int j = 0; j < bodyNum; j++)
                     {
-                        k[j, i2] = Bodies[j].Velocity.Add(l[j, i2-1].ScalarProduct(0.5)).ScalarProduct(stepSize);
+                        k[j, i2] = velocities[j].Add(l[j, i2-1].ScalarProduct(0.5)).ScalarProduct(stepSize);
 
-                        for (int j2 = 0; j2 < Bodies.Length; j2++)
+                        for (int j2 = 0; j2 < bodyNum; j2++)
                         {
                             if (j == j2) { continue; }
-                            displacement = Bodies[j].Position.Add(k[j, i2-1].ScalarProduct(0.5))
-                                .Subtract(Bodies[j2].Position.Add(k[j2, i2-1].ScalarProduct(0.5)));
+                            displacement = positions[j].Add(k[j, i2-1].ScalarProduct(0.5))
+                                .Subtract(positions[j2].Add(k[j2, i2-1].ScalarProduct(0.5)));
                             norm = displacement.Norm(shorteningLength);
 
                             l[j, i2] = l[j, i2].Subtract(displacement
-                                                        .ScalarProduct(stepSize * gravitationalConstant * Bodies[j2].Mass
+                                                        .ScalarProduct(stepSize * gravitationalConstant * masses[j2]
                                                         / (norm * norm * norm)));
                         }
                     }
                 }
                 //Find k4/l4
-                for (int j = 0; j < Bodies.Length; j++)
+                for (int j = 0; j < bodyNum; j++)
                 {
-                    k[j, 3] = Bodies[j].Velocity.Add(l[j, 2]).ScalarProduct(stepSize);
+                    k[j, 3] = velocities[j].Add(l[j, 2]).ScalarProduct(stepSize);
 
-                    for (int j2 = 0; j2 < Bodies.Length; j2++)
+                    for (int j2 = 0; j2 < bodyNum; j2++)
                     {
                         if (j == j2) { continue; }
-                        displacement = Bodies[j].Position.Add(k[j, 2])
-                            .Subtract(Bodies[j2].Position.Add(k[j2, 2]));
+                        displacement = positions[j].Add(k[j, 2])
+                            .Subtract(positions[j2].Add(k[j2, 2]));
                         norm = displacement.Norm(shorteningLength);
 
                         l[j, 3] = l[j, 3].Subtract(displacement
-                                                    .ScalarProduct(stepSize * gravitationalConstant * Bodies[j2].Mass
+                                                    .ScalarProduct(stepSize * gravitationalConstant * masses[j2]
                                                     / (norm * norm * norm)));
                     }
                 }
 
                 //Update Position and Velocity vectors
-                for (int j = 0; j < Bodies.Length; j++)
+                for (int j = 0; j < bodyNum; j++)
                 {
-                    Bodies[j].Position = Bodies[j].Position.Add(k[j, 0]
+                    positions[j] = positions[j].Add(k[j, 0]
                                                            .Add(k[j, 1].ScalarProduct(2.0))
                                                            .Add(k[j, 2].ScalarProduct(2.0))
                                                            .Add(k[j, 3]).ScalarProduct(1.0 / 6.0));
 
-                    Bodies[j].Velocity = Bodies[j].Velocity.Add(l[j, 0]
+                    velocities[j] = velocities[j].Add(l[j, 0]
                                                            .Add(l[j, 1].ScalarProduct(2.0))
                                                            .Add(l[j, 2].ScalarProduct(2.0))
                                                            .Add(l[j, 3]).ScalarProduct(1.0 / 6.0));
