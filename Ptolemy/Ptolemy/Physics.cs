@@ -17,14 +17,6 @@ namespace Ptolemy
 
         int bodyNum;
 
-        double[][] positions;
-        double[][] velocities;
-        double[] masses;
-
-        double[][][] ForceEvals;
-        double[][][] VelEvals;
-        double[][] posPredictions;
-
 
         //FMM variables
 
@@ -53,17 +45,8 @@ namespace Ptolemy
 
         public Body[] getBodies()
         {
-            //Push data back into Body objects
-            for (int i = 0; i < bodyNum; i++)
-            {
-                Bodies[i].Position = positions[i];
-                Bodies[i].Velocity = velocities[i];
 
-                Bodies[i].ForceEvaluations = ForceEvals[i];
-                Bodies[i].VelocityEvaluations = VelEvals[i];
-            }
-
-            return Bodies;
+            return this.Bodies;
         }
 
         public void UpdateStep(int iters)
@@ -87,7 +70,7 @@ namespace Ptolemy
                     {
                         if (i == j) { continue; }
                         displacement = Bodies[i].Position.Subtract(Bodies[j].Position);
-                        norm = displacement.Norm();
+                        norm = displacement.Norm(shorteningLength);
                         force = force.Subtract(displacement.ScalarProduct(stepSize * gravitationalConstant * Bodies[j].Mass
                                             / (norm * norm * norm)));
                     }
@@ -106,8 +89,7 @@ namespace Ptolemy
                                                    .Add(Bodies[i].VelocityEvaluations[1].ScalarProduct(106.0))
                                                    .Subtract(Bodies[i].VelocityEvaluations[2].ScalarProduct(19.0))
                                                    .ScalarProduct(stepSize / 720.0));
-                    Bodies[i].pushForce(force);
-
+                    Bodies[i].ForceEvaluations.Push(force);
 
                 }
 
@@ -119,7 +101,7 @@ namespace Ptolemy
                     {
                         if (i == j) { continue; }
                         displacement = Bodies[i].PositionPrediction.Subtract(Bodies[j].PositionPrediction);
-                        norm = displacement.Norm();
+                        norm = displacement.Norm(shorteningLength);
                         forcePrediction = forcePrediction.Subtract(displacement.ScalarProduct(stepSize * gravitationalConstant * Bodies[j].Mass
                                             / (norm * norm * norm)));
                     }
@@ -176,14 +158,14 @@ namespace Ptolemy
                     {
                         if (j == j2) { continue; }
                         displacement = Bodies[j].Position.Subtract(Bodies[j2].Position);
-                        norm = displacement.Norm();
+                        norm = displacement.Norm(shorteningLength);
 
                         l[j, 1] = l[j, 1].Subtract(displacement
                                                     .ScalarProduct(stepSize * gravitationalConstant * Bodies[j2].Mass
                                                     / (norm * norm * norm)));
                     }
                     //Store g_n
-                    Bodies[j].pushForce(l[j, 1]);
+                    Bodies[j].ForceEvaluations.Push(l[j, 1]);
                     Bodies[j].pushVel();
                 }
 
@@ -199,7 +181,7 @@ namespace Ptolemy
                             if (j == j2) { continue; }
                             displacement = Bodies[j].Position.Add(k[j, i2 - 1].ScalarProduct(0.5))
                                 .Subtract(Bodies[j2].Position.Add(k[j2, i2 - 1].ScalarProduct(0.5)));
-                            norm = displacement.Norm();
+                            norm = displacement.Norm(shorteningLength);
 
                             l[j, i2] = l[j, i2].Subtract(displacement
                                                         .ScalarProduct(stepSize * gravitationalConstant * Bodies[j2].Mass
@@ -217,7 +199,7 @@ namespace Ptolemy
                         if (j == j2) { continue; }
                         displacement = Bodies[j].Position.Add(k[j, 2])
                             .Subtract(Bodies[j2].Position.Add(k[j2, 2]));
-                        norm = displacement.Norm();
+                        norm = displacement.Norm(shorteningLength);
 
                         l[j, 3] = l[j, 3].Subtract(displacement
                                                     .ScalarProduct(stepSize * gravitationalConstant * Bodies[j2].Mass
@@ -249,23 +231,19 @@ namespace Ptolemy
         {
 
             double energy = 0.0;
-            double[] displacement = new double[3];
             double norm = 0.0;
             for (int i = 0; i < bodyNum; i++)
             {
                 //Add kinetic energy 
-                energy += masses[i] * velocities[i].Norm()
-                    * velocities[i].Norm() * 0.5;
+                energy += Bodies[i].Mass * Bodies[i].Velocity.Norm()
+                    * Bodies[i].Velocity.Norm() * 0.5;
                 //Add potential energy 
                 for (int j = 0; j < bodyNum; j++)
                 {
                     if (i == j) { continue; }
 
-                    displacement = positions[i].Subtract(positions[j]);
-
-
-                    norm = displacement.Norm();
-                    energy += (stepSize * gravitationalConstant * masses[i] * masses[j]
+                    norm = Bodies[i].Position.Subtract(Bodies[j].Position).Norm();
+                    energy += (stepSize * gravitationalConstant * Bodies[i].Mass * Bodies[j].Mass
                                         / (norm));
                 }
             }

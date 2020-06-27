@@ -12,7 +12,7 @@ namespace Ptolemy
             double stepSize = 0.001;
             double gravConst = 1.0;
 
-            int bodyNum = 400;
+            int bodyNum = 100;
             double lims = 1000;
 
             Body[] bodies = new Body[bodyNum];

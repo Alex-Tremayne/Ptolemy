@@ -23,11 +23,8 @@ namespace Ptolemy
 
         public void pushVel()
         {
+            //TO-DO check if this is faster than pushing it externally
             VelocityEvaluations.Push(Velocity);
-        }
-        public void pushForce(double[] force)
-        {
-            ForceEvaluations.Push(force);
         }
 
 
