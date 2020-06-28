@@ -1,4 +1,5 @@
 ﻿using System;
+using System.CodeDom.Compiler;
 using System.Diagnostics;
 
 namespace Ptolemy
@@ -8,76 +9,68 @@ namespace Ptolemy
         static void Main(string[] args)
         {
             
-            double stepSize = 0.001; //Will add code to check the total energy as a measure of accuracy
+            double stepSize = 0.001;
             double gravConst = 1.0;
 
-            int bodyNum = 1000;
+            int bodyNum = 100;
             double lims = 1000;
 
             Body[] bodies = new Body[bodyNum];
 
             Random random = new Random();
-            double[] pos = { 0, 0, 0 };
+            //double[] pos = { 0, 0, 0 };
             double[] vel = new double[3];
 
             for(int i = 0; i < bodyNum; i++)
             {
+                //Apparently we need to do this, otherwise bodies will have the last position calculated
+                //I have no idea why :/
+                double[] pos = { 0, 0, 0 };
+
                 pos[0] = lims * random.NextDouble();
                 pos[1] = lims * random.NextDouble();
                 pos[2] = lims * random.NextDouble();
+
                 bodies[i] = new Body(1.0, pos, vel);
             }
+
+            Console.WriteLine(bodies[0].Position[0].ToString());
+
+
+
+
+            Physics simulation = new Physics(stepSize, bodies, gravConst, 1.0, new double[] { lims, lims, lims });
+
+            double energyInit = simulation.GetEnergy();
+
+            int iterations = 2000;
             
-            Physics simulation = new Physics(stepSize, bodies, gravConst, 10.0);
-
-            //double energy = 0.0;
-            //double[] displacement = new double[3];
-            //double norm = 0.0;
-            //for(int i = 0; i < bodies.Length; i++)
-            //{
-            //    energy += simulation.Bodies[i].Mass * simulation.Bodies[i].Velocity.Norm()
-            //        * simulation.Bodies[i].Velocity.Norm() * 0.5;
-            //    for (int j = 0; j < bodies.Length; j++)
-            //    {
-            //        if ( i == j) { continue; }
-            //        displacement = simulation.Bodies[i].Position.Subtract(simulation.Bodies[j].Position);
-            //        norm = displacement.Norm();
-            //        energy += (stepSize * gravConst * simulation.Bodies[i].Mass * simulation.Bodies[j].Mass
-            //                            / (norm));
-            //    }
-            //}
-
-            //double energyInit = energy;
-            //Console.Write("Initial Energy: ");
-            //Console.WriteLine(energy.ToString());
             Console.WriteLine("Simulating");
+            Console.WriteLine();
 
             Stopwatch stopwatch = Stopwatch.StartNew();
-            simulation.UpdateStep(200);
+            simulation.UpdateStep(iterations);
             stopwatch.Stop();
-            Console.WriteLine(stopwatch.ElapsedMilliseconds);
-            Console.WriteLine(200.0 / (double)stopwatch.ElapsedMilliseconds * 1000.0);
+
+            Console.WriteLine("Time elapsed: {0}", stopwatch.ElapsedMilliseconds);
+            Console.WriteLine("Iterations per second: {0}", iterations / (double)stopwatch.ElapsedMilliseconds * 1000.0);
+            Console.WriteLine();
+
+            double energy = simulation.GetEnergy();
+            Console.WriteLine("Initial Energy: {0}", energyInit);
+            Console.WriteLine("Final Energy: {0}", energy);
+            Console.WriteLine("Energy Delta: {0}", energy - energyInit);
+
+            bodies = simulation.getBodies();
+            Console.WriteLine(bodies[0].Position[0].ToString());
 
 
-            //energy = 0.0;
-            //for (int i = 0; i < bodies.Length; i++)
-            //{
-            //    energy += simulation.Bodies[i].Mass * simulation.Bodies[i].Velocity.Norm()
-            //        * simulation.Bodies[i].Velocity.Norm() * 0.5;
-            //    for (int j = 0; j < bodies.Length; j++)
-            //    {
-            //        if (i == j) { continue; }
-            //        displacement = simulation.Bodies[i].Position.Subtract(simulation.Bodies[j].Position);
-            //        norm = displacement.Norm();
-            //        energy += (stepSize * gravConst * simulation.Bodies[i].Mass * simulation.Bodies[j].Mass
-            //                            / (norm));
-            //    }
-            //}
-            //Console.Write("Final Energy: ");
-            //Console.WriteLine(energy.ToString());
-            //Console.WriteLine();
-            //Console.Write("Error %: ");
-            //Console.WriteLine((100.0*(energy-energyInit)/energy).ToString());
+            uint[] neighbours = FMMMethods.GetNeighbours(3);
+            foreach(uint item in neighbours)
+            {
+                Console.WriteLine(item);
+            }
+
         }
     }
 }

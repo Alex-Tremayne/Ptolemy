@@ -8,6 +8,7 @@ namespace Ptolemy
     class Body
     {
         public double Mass { get; }
+        //public double Charge { get; }
 
         public double[] Position { get; set; }
         public double[] Velocity { get; set; }
@@ -16,19 +17,20 @@ namespace Ptolemy
         public double[][] ForceEvaluations { get; set; }//Array of net force at previous time steps
         public double[][] VelocityEvaluations { get; set; }//Array of velocities at previous time steps
 
-        //These methods are unecessary but the RK4 initialisation code still uses them
+        public double[] PositionPrediction { get; set; }
+
+        //Morton index for the indexed tree structure
+        public uint MortonIndex { get; set; }
+        //Parent cell id = MortonIndex / 4
+        //Child index = parentIndex * 4 + c
+        //which gives the c-th child of the parent
+
         public void pushVel()
         {
-            //Move all elements in the array to the right and insert the new value
-            Array.Copy(VelocityEvaluations, 0, VelocityEvaluations, 1, 2);
-            VelocityEvaluations[0] = Velocity;
+            //TO-DO check if this is faster than pushing it externally
+            VelocityEvaluations.Push(Velocity);
         }
-        public void pushForce(double[] force)
-        {
-            //Move all elements in the array to the right and insert the new value
-            Array.Copy(ForceEvaluations, 0, ForceEvaluations, 1, 3);
-            ForceEvaluations[0] = force;
-        }
+
 
         public Body(double mass, double[] position, double[] velocity)
         {
