@@ -37,7 +37,9 @@ namespace Ptolemy
             Console.WriteLine(bodies[0].Position[0].ToString());
 
 
-            Physics simulation = new Physics(stepSize, bodies, gravConst, 1.0);
+
+
+            Physics simulation = new Physics(stepSize, bodies, gravConst, 1.0, new double[] { lims, lims, lims });
 
             double energyInit = simulation.GetEnergy();
 
@@ -61,6 +63,13 @@ namespace Ptolemy
 
             bodies = simulation.getBodies();
             Console.WriteLine(bodies[0].Position[0].ToString());
+
+
+            uint[] neighbours = FMMMethods.GetNeighbours(3);
+            foreach(uint item in neighbours)
+            {
+                Console.WriteLine(item);
+            }
 
         }
     }

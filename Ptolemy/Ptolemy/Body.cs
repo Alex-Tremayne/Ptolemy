@@ -8,6 +8,7 @@ namespace Ptolemy
     class Body
     {
         public double Mass { get; }
+        //public double Charge { get; }
 
         public double[] Position { get; set; }
         public double[] Velocity { get; set; }
@@ -20,6 +21,9 @@ namespace Ptolemy
 
         //Morton index for the indexed tree structure
         public uint MortonIndex { get; set; }
+        //Parent cell id = MortonIndex / 4
+        //Child index = parentIndex * 4 + c
+        //which gives the c-th child of the parent
 
         public void pushVel()
         {

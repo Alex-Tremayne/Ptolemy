@@ -12,6 +12,8 @@ namespace Ptolemy
         private double gravitationalConstant;
         private double stepSize;
         private double shorteningLength;
+        private double[] simBoundary;
+        //Boundary min 0,0,0
         
         private Body[] Bodies{ get; set; }
 
@@ -21,15 +23,17 @@ namespace Ptolemy
         //FMM variables
 
         int MaxBodiesPerBox;
+        int[] OffSets;
 
             
 
-        public Physics(double stepSize, Body[] bodies, double gravitationalConstant, double shorteningLength, int MaxBodiesPerBox = 10)
+        public Physics(double stepSize, Body[] bodies, double gravitationalConstant, double shorteningLength, double[] simBoundary, int MaxBodiesPerBox = 10)
         {
             this.stepSize = stepSize;
             this.Bodies = bodies;
             this.gravitationalConstant = gravitationalConstant;
             this.shorteningLength = shorteningLength;
+            this.simBoundary = simBoundary;
 
             //FMM vars
             this.MaxBodiesPerBox = MaxBodiesPerBox;
@@ -89,6 +93,8 @@ namespace Ptolemy
                                                    .Add(Bodies[i].VelocityEvaluations[1].ScalarProduct(106.0))
                                                    .Subtract(Bodies[i].VelocityEvaluations[2].ScalarProduct(19.0))
                                                    .ScalarProduct(stepSize / 720.0));
+
+
                     Bodies[i].ForceEvaluations.Push(force);
 
                 }
