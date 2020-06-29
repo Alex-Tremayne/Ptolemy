@@ -57,6 +57,9 @@ namespace Ptolemy
 
             int skips = 1;//Must skip centre
 
+            //This is a dumb way of checking how many of them are actually 0
+            //But it does work, and technically it doesn't care which ones are 0
+            //But it's probably slower than just having a bunch of if statements for each coord
             if(CellCoords[0]*CellCoords[1]*CellCoords[2] == 0)
             {
                 if(CellCoords[0]*CellCoords[1]+CellCoords[0]*CellCoords[2]+CellCoords[1]*CellCoords[2] == 0)
@@ -110,7 +113,7 @@ namespace Ptolemy
             return NeighbourIndices;
         }
 
-        public static void DecomposeDomain(ref Body[] Bodies, double[] Boundary, int level = -1, bool sort = true)
+        public static int[] DecomposeDomain(ref Body[] Bodies, double[] Boundary, int level = -1, bool sort = true)
             //Optional level var, if non-negative, decompose directly at that level
             //Domain is sorted unless sort = false
         {
@@ -133,6 +136,23 @@ namespace Ptolemy
                 Array.Sort(Bodies,
                     delegate (Body x, Body y) { return x.MortonIndex.CompareTo(y.MortonIndex); });
             }
+
+            int[] OffSets = new int[] { };
+            int indexCurrent = -1;
+            int NCell = 0;
+            
+            for(int i = 1; i < Bodies.Length; i++)
+            {
+                if(indexCurrent != Bodies[i].MortonIndex)
+                {
+                    indexCurrent = (int)Bodies[i].MortonIndex;
+                    OffSets[NCell] = i;
+                    NCell++;
+
+                }
+            }
+
+            return OffSets;
         }
     }
 }

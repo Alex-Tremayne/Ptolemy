@@ -1,6 +1,8 @@
 ﻿using System;
 using System.CodeDom.Compiler;
+using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 
 namespace Ptolemy
 {
@@ -23,7 +25,7 @@ namespace Ptolemy
 
             for(int i = 0; i < bodyNum; i++)
             {
-                //Apparently we need to do this, otherwise bodies will have the last position calculated
+                //Apparently we need to do this, otherwise all the bodies will have the last position calculated
                 //I have no idea why :/
                 double[] pos = { 0, 0, 0 };
 
@@ -34,42 +36,17 @@ namespace Ptolemy
                 bodies[i] = new Body(1.0, pos, vel);
             }
 
-            Console.WriteLine(bodies[0].Position[0].ToString());
 
 
 
-
-            Physics simulation = new Physics(stepSize, bodies, gravConst, 1.0, new double[] { lims, lims, lims });
-
-            double energyInit = simulation.GetEnergy();
+            Physics simulation = new Physics(stepSize, bodies, gravConst, 1.0, new double[] { lims, lims, lims }, SummarisePerformance: true);
 
             int iterations = 2000;
             
             Console.WriteLine("Simulating");
-            Console.WriteLine();
+            
 
-            Stopwatch stopwatch = Stopwatch.StartNew();
-            simulation.UpdateStep(iterations);
-            stopwatch.Stop();
-
-            Console.WriteLine("Time elapsed: {0}", stopwatch.ElapsedMilliseconds);
-            Console.WriteLine("Iterations per second: {0}", iterations / (double)stopwatch.ElapsedMilliseconds * 1000.0);
-            Console.WriteLine();
-
-            double energy = simulation.GetEnergy();
-            Console.WriteLine("Initial Energy: {0}", energyInit);
-            Console.WriteLine("Final Energy: {0}", energy);
-            Console.WriteLine("Energy Delta: {0}", energy - energyInit);
-
-            bodies = simulation.getBodies();
-            Console.WriteLine(bodies[0].Position[0].ToString());
-
-
-            uint[] neighbours = FMMMethods.GetNeighbours(3);
-            foreach(uint item in neighbours)
-            {
-                Console.WriteLine(item);
-            }
+            simulation.RunDirect(iterations);
 
         }
     }

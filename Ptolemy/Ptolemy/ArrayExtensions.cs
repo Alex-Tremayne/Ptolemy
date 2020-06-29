@@ -82,6 +82,7 @@ namespace Ptolemy
 
         public static double Norm(this double[] array)
         {
+            //Calculate the euclidean norm of an array
             double result = 0.0;
             foreach (double element in array)
             {
@@ -93,6 +94,8 @@ namespace Ptolemy
         public static double Norm(this double[] array, double shorteningLength)
         {
             //Overload with optional shortening length
+            //Yes, this is a hack because I didn't implement the shortening length from the beginning
+            //On the plus side, it's probably faster this way anyway
 
             double result = 0.0;
             foreach (double element in array)

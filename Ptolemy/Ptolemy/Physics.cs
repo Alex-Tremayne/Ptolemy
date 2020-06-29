@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
 using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
@@ -13,10 +15,11 @@ namespace Ptolemy
         private double stepSize;
         private double shorteningLength;
         private double[] simBoundary;
+        private bool SummarisePerformance;
+        public List<PerformanceSummary> PerformanceSummaries { get; }
         //Boundary min 0,0,0
         
         private Body[] Bodies{ get; set; }
-
         int bodyNum;
 
 
@@ -27,33 +30,44 @@ namespace Ptolemy
 
             
 
-        public Physics(double stepSize, Body[] bodies, double gravitationalConstant, double shorteningLength, double[] simBoundary, int MaxBodiesPerBox = 10)
+        public Physics(double stepSize, Body[] bodies, double gravitationalConstant,
+            double shorteningLength, double[] simBoundary, int MaxBodiesPerBox = 10,
+            bool SummarisePerformance = false)
         {
             this.stepSize = stepSize;
             this.Bodies = bodies;
             this.gravitationalConstant = gravitationalConstant;
             this.shorteningLength = shorteningLength;
             this.simBoundary = simBoundary;
+            this.SummarisePerformance = SummarisePerformance;
 
             //FMM vars
-            this.MaxBodiesPerBox = MaxBodiesPerBox;
+            this.MaxBodiesPerBox = MaxBodiesPerBox;// This isn't used for anything yet
 
 
             //Initialise simulation vars
             bodyNum = this.Bodies.Length;
 
+            if(SummarisePerformance)
+            {
+                PerformanceSummaries = new List<PerformanceSummary> { };
+            }
 
             //Generate initial points using RK4
             InitialiseRK4();
         }
 
-        public Body[] getBodies()
+        public Body[] GetBodies()
         {
-
             return this.Bodies;
         }
 
-        public void UpdateStep(int iters)
+        public void RunFMM()
+        {
+
+        }
+
+        public void RunDirect(int iters)
         {
            
 
@@ -64,12 +78,24 @@ namespace Ptolemy
             double[] newVelocity = new double[3];
             double norm;
 
+            double Energy = 0; ;
+
+            Stopwatch stopwatch = new Stopwatch();
+
+            if (SummarisePerformance)
+            {
+                Energy = GetEnergy();
+                stopwatch.Start();
+            }
+
             for (int iter = 0; iter < iters; iter++)
             {
                 for (int i = 0; i < bodyNum; i++)
                 {
                     Array.Clear(force, 0, force.Length);
 
+
+                    //Calculate the sum force
                     for (int j = 0; j < bodyNum; j++)
                     {
                         if (i == j) { continue; }
@@ -103,6 +129,7 @@ namespace Ptolemy
                 {
                     Array.Clear(forcePrediction, 0, forcePrediction.Length);
 
+                    //Calculate the sum force
                     for (int j = 0; j < bodyNum; j++)
                     {
                         if (i == j) { continue; }
@@ -131,6 +158,23 @@ namespace Ptolemy
                     Bodies[i].Velocity = newVelocity;
 
                 }
+            }
+            //Creates a new performance object in the performance list
+            if(SummarisePerformance)
+            {
+                stopwatch.Stop();
+                int itersTot;
+                if(PerformanceSummaries.Any())
+                {
+                    itersTot = PerformanceSummaries.Last().IterationsTot;
+                } else
+                {
+                    itersTot = 0;
+                }
+                double EnergyAfter = GetEnergy();
+
+                PerformanceSummaries.Add(new PerformanceSummary(iters + itersTot, iters, Energy, EnergyAfter,
+                    EnergyAfter - Energy,stopwatch.ElapsedMilliseconds, iters / (double)stopwatch.ElapsedMilliseconds * 1000.0));
             }
         }
         void InitialiseRK4()
